@@ -90,10 +90,7 @@ export default function PaginaInicial() {
               value={username}
               onChange={(infosDoEvento) => {
                 const valor = infosDoEvento.target.value;
-                
                 setUsername(valor);
-                
-
               }}
               fullWidth
               textFieldColors={{
