@@ -1,12 +1,31 @@
-import { Box, Text, TextField, Image, Button } from '@skynexui/components'
-import React from 'react'
+import { Box, Text, Image } from '@skynexui/components'
+import * as React from 'react';
 import appConfig from '../config.json'
-import { FaLocationArrow } from "react-icons/fa";
-import { IconContext } from "react-icons";
+import SendIcon from '@mui/icons-material/Send';
+import IconButton from '@mui/material/IconButton';
+import Paper from '@mui/material/Paper';
+import InputBase from '@mui/material/InputBase';
+import Button from '@mui/material/Button';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import { createClient } from '@supabase/supabase-js'
+
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzMwNjgwNSwiZXhwIjoxOTU4ODgyODA1fQ.deQWSwiGpViJG39o9zOP50vycMVZBFvrVvk2RRisANM";
+const  SUPABASE_URL = "https://jkwdqopgjqovtuhfyatz.supabase.co";
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export default function ChatPage(){
   const [mensagem, setMensagem] = React.useState('');
   const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
+
+  React.useEffect(() => {
+    supabaseClient
+      .from('mensagens')
+      .select('*')
+      .order('id', { ascending: false })
+      .then(({ data }) => {
+        setListaDeMensagens(data)
+      });
+  }, []);
 
   function handleNovaMensagem(novaMensagem){
     const mensagem = {
@@ -14,10 +33,19 @@ export default function ChatPage(){
       de: 'rubensdimasjr',
       texto: novaMensagem
     }
-    setListaDeMensagens([
-      mensagem,
-      ...listaDeMensagens
-    ])
+
+    supabaseClient
+      .from('mensagens')
+      .insert([
+        mensagem
+      ])
+      .then(({ data }) => {
+        setListaDeMensagens([
+          data[0],
+          ...listaDeMensagens
+        ]);
+      });
+
     setMensagem('');
   }
 
@@ -33,7 +61,7 @@ export default function ChatPage(){
     <Box
       styleSheet={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        backgroundColor: appConfig.theme.colors.primary[500],
+        backgroundColor: appConfig.theme.colors.neutrals[500],
         backgroundImage: `url(https://virtualbackgrounds.site/wp-content/uploads/2020/07/the-last-of-us-streets-of-pittsburgh-1536x864.jpg)`,
         backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundBlendMode: 'multiply',
         color: appConfig.theme.colors.neutrals['000']
@@ -76,49 +104,56 @@ export default function ChatPage(){
             )
           })} */}
 
-          <Box
-            as="form"
-            styleSheet={{
+          <Paper
+            elevation={0}
+            component="form"
+            sx={{
+                p: '2px 4px',
                 display: 'flex',
-                alignItems: 'center'
+                alignItems: 'center',
+                backgroundColor: appConfig.theme.colors.neutrals[500]
             }}
           >
-            <TextField
+            <InputBase
+              multiline={true}
               value={mensagem}
               onChange={(evento) => {
                 const valor = evento.target.value;
                 setMensagem(valor);
               }}
               onKeyPress={(evento) => {
-                
                 if(evento.key === 'Enter'){
                   evento.preventDefault();
                   sendMassage(); // verificando a mensagem
                 }
               }}
               placeholder="Insira sua mensagem aqui..."
-              type="textarea"
-              styleSheet={{
+              sx={{
+                  ml: 1, 
+                  flex: 1, 
                   width: '100%',
                   border: '0',
                   resize: 'none',
                   borderRadius: '5px',
                   padding: '6px 8px',
-                  marginRight: '.8em',
-                  backgroundColor: appConfig.theme.colors.neutrals[800],
-                  color: appConfig.theme.colors.neutrals[200],
+                  marginRight: '2px',
+                  backgroundColor: appConfig.theme.colors.neutrals[500],
+                  color: appConfig.theme.colors.neutrals[300],
               }}
-            >
-            </TextField>
-              <IconContext.Provider 
-                value={{ style:{color: '#ccc', width: '1.5em', height: '1.5em', cursor: 'pointer'} 
-                }}
-              >
-                <FaLocationArrow 
-                  onClick={() => sendMassage()}
-                />
-              </IconContext.Provider>
-          </Box>
+            />
+            <IconButton
+              onClick={() => sendMassage()} 
+              sx={{ 
+                p: '10px', 
+                color: appConfig.theme.colors.neutrals[300],
+                '&:hover': {
+                  color: 'white',
+                }
+              }} 
+              aria-label="directions">
+                <SendIcon />
+            </IconButton>
+          </Paper>
         </Box>
       </Box>
     </Box>
@@ -131,12 +166,22 @@ export default function ChatPage(){
           <Text variant='heading5'>
               Chat
           </Text>
-          <Button
-              variant='tertiary'
-              colorVariant='neutral'
-              label='Logout'
-              href="/"
-          />
+          <Button 
+            variant="outlined"
+            color='info'
+            href='/'
+            endIcon={<ExitToAppIcon
+                color='info'
+              />}
+            sx={{ 
+              color: appConfig.theme.colors.neutrals[300],
+              '&:hover': {
+
+              }
+             }}
+          >
+            Logout
+          </Button>
         </Box>
       </>
     )
@@ -155,6 +200,7 @@ export default function ChatPage(){
             marginBottom: '16px',
         }}
       >
+        
         {props.mensagens.map((mensagem) => {
           return(
             <Text
@@ -173,8 +219,10 @@ export default function ChatPage(){
               <Box
                 styleSheet={{
                     marginBottom: '8px',
+                    position: 'relative',
                 }}
               >
+                
                 <Image
                   styleSheet={{
                       width: '20px',
@@ -183,7 +231,7 @@ export default function ChatPage(){
                       display: 'inline-block',
                       marginRight: '8px',
                   }}
-                  src={`https://github.com/rubensdimasjr.png`}
+                  src={`https://github.com/${mensagem.de}.png`}
                 />
 
                 <Text tag="strong">
@@ -199,9 +247,11 @@ export default function ChatPage(){
                 >
                   {(new Date().toLocaleDateString())}
                 </Text>
+                  
               </Box>
                 {mensagem.texto}
             </Text>
+            
           )
         })}
         
