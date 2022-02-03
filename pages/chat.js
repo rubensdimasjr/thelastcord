@@ -53,7 +53,7 @@ export default function ChatPage(){
           ]
         });
       });
-      
+
   }, []);
 
   function handleNovaMensagem(novaMensagem){
@@ -168,6 +168,12 @@ export default function ChatPage(){
                   color: appConfig.theme.colors.neutrals[300],
               }}
             />
+            <ButtonSendSticker
+              onStickerClick={(sticker) => {
+                //console.log('[USANDO O COMPONENTE] salva esticker no banco', sticker);
+                handleNovaMensagem(':sticker: ' + sticker);
+              }}
+            />
             <IconButton
               onClick={() => sendMassage()} 
               sx={{ 
@@ -180,12 +186,6 @@ export default function ChatPage(){
               aria-label="directions">
                 <SendIcon />
             </IconButton>
-            <ButtonSendSticker
-              onStickerClick={(sticker) => {
-                //console.log('[USANDO O COMPONENTE] salva esticker no banco', sticker);
-                handleNovaMensagem(':sticker: ' + sticker);
-              }}
-            />
           </Paper>
         </Box>
       </Box>

@@ -1,6 +1,8 @@
 import React from "react";
-import { Box, Button, Text, Image } from "@skynexui/components";
+import { Box, Text, Image } from "@skynexui/components";
 import appConfig from "../../config.json";
+import GifIcon from '@mui/icons-material/Gif';
+import IconButton from '@mui/material/IconButton';
 
 export function ButtonSendSticker(props) {
   const [isOpen, setOpenState] = React.useState("");
@@ -11,39 +13,23 @@ export function ButtonSendSticker(props) {
         position: "relative",
       }}
     >
-      <Button
-        styleSheet={{
-          borderRadius: "50%",
-
-          padding: "0 3px 0 0",
-
-          minWidth: "50px",
-
-          minHeight: "50px",
-
-          fontSize: "20px",
-
-          marginBottom: "8px",
-
-          lineHeight: "0",
-
-          display: "flex",
-
-          alignItems: "center",
-
-          justifyContent: "center",
-
-          backgroundColor: appConfig.theme.colors.neutrals[300],
-
-          filter: isOpen ? "grayscale(0)" : "grayscale(1)",
-
-          hover: {
-            filter: "grayscale(0)",
-          },
-        }}
-        label="😋"
-        onClick={() => setOpenState(!isOpen)}
-      />
+      <IconButton
+        onClick={() => setOpenState(!isOpen)} 
+        sx={{ 
+          p: '5px', 
+          color: appConfig.theme.colors.neutrals[300],
+          filter: isOpen ? "saturate(8)" : "saturate(1)",
+          '&:hover': {
+            color: 'white'
+          }
+        }} 
+        aria-label="directions">
+          <GifIcon
+            sx={{
+              fontSize: '30px'
+            }}
+          />
+      </IconButton>
 
       {isOpen && (
         <Box
