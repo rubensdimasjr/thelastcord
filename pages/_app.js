@@ -8,6 +8,29 @@ function GlobalStyle() {
         box-sizing: border-box;
         list-style: none;
       }
+
+      /* ===== Scrollbar CSS ===== */
+      /* Firefox */
+      * {
+        scrollbar-width: auto;
+        scrollbar-color: #212931 #29333d;
+      }
+    
+      /* Chrome, Edge, and Safari */
+      *::-webkit-scrollbar {
+        width: 10px;
+      }
+    
+      *::-webkit-scrollbar-track {
+        background: #29333d;
+      }
+    
+      *::-webkit-scrollbar-thumb {
+        background-color: #212931;
+        border-radius: 10px;
+        border: 0px none #ffffff;
+      }
+
       body {
         font-family: 'Open Sans', sans-serif;
       }

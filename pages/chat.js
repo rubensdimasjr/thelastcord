@@ -9,16 +9,32 @@ import Button from '@mui/material/Button';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/router';
+import { ButtonSendSticker } from '../src/components/ButtonSendSticker';
 
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzMwNjgwNSwiZXhwIjoxOTU4ODgyODA1fQ.deQWSwiGpViJG39o9zOP50vycMVZBFvrVvk2RRisANM";
 const  SUPABASE_URL = "https://jkwdqopgjqovtuhfyatz.supabase.co";
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+function escutaMensagensEmTempoReal(adicionaMensagem){
+  return supabaseClient
+    .from('mensagens')
+    .on('INSERT', (respostaLive) => {
+      adicionaMensagem(respostaLive.new);
+    })
+    .subscribe();
+}
+
 export default function ChatPage(){
   const roteamento = useRouter();
   const usuarioLogado = roteamento.query.username;
   const [mensagem, setMensagem] = React.useState('');
-  const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
+  const [listaDeMensagens, setListaDeMensagens] = React.useState([
+/*     {
+      id: 1,
+      de: 'rubensdimasjr',
+      texto: ':sticker: https://c.tenor.com/TKpmh4WFEsAAAAAC/alura-gaveta-filmes.gif'
+    } */
+  ]);
 
   React.useEffect(() => {
     supabaseClient
@@ -28,6 +44,16 @@ export default function ChatPage(){
       .then(({ data }) => {
         setListaDeMensagens(data)
       });
+
+      escutaMensagensEmTempoReal((novaMensagem) => {
+        setListaDeMensagens((valorAtualDaLista) => {
+          return [
+            novaMensagem,
+            ...valorAtualDaLista
+          ]
+        });
+      });
+      
   }, []);
 
   function handleNovaMensagem(novaMensagem){
@@ -43,10 +69,8 @@ export default function ChatPage(){
         mensagem
       ])
       .then(({ data }) => {
-        setListaDeMensagens([
-          data[0],
-          ...listaDeMensagens
-        ]);
+        console.log('Criando mensagem: ', data)
+
       });
 
     setMensagem('');
@@ -94,7 +118,7 @@ export default function ChatPage(){
               backgroundColor: appConfig.theme.colors.neutrals[600],
               flexDirection: 'column',
               borderRadius: '5px',
-              padding: '16px'
+              padding: '16px',
           }}
         >
           
@@ -156,6 +180,12 @@ export default function ChatPage(){
               aria-label="directions">
                 <SendIcon />
             </IconButton>
+            <ButtonSendSticker
+              onStickerClick={(sticker) => {
+                //console.log('[USANDO O COMPONENTE] salva esticker no banco', sticker);
+                handleNovaMensagem(':sticker: ' + sticker);
+              }}
+            />
           </Paper>
         </Box>
       </Box>
@@ -200,7 +230,7 @@ export default function ChatPage(){
             flexDirection: 'column-reverse',
             flex: 1,
             color: appConfig.theme.colors.neutrals["000"],
-            marginBottom: '16px',
+            marginBottom: '16px'
         }}
       >
         
@@ -217,12 +247,13 @@ export default function ChatPage(){
                   hover: {
                     backgroundColor: appConfig.theme.colors.neutrals[700],
                   }
+                  
               }}
             > 
               <Box
                 styleSheet={{
                     marginBottom: '8px',
-                    position: 'relative',
+                    position: 'relative'
                 }}
               >
                 
@@ -252,7 +283,13 @@ export default function ChatPage(){
                 </Text>
                   
               </Box>
-                {mensagem.texto}
+                  {mensagem.texto.startsWith(':sticker:') 
+                  ? (
+                    <Image src={mensagem.texto.replace(':sticker:', '')} />
+                  ) 
+                  : (
+                    mensagem.texto
+                  )}
             </Text>
             
           )
