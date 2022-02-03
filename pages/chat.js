@@ -7,13 +7,16 @@ import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import Button from '@mui/material/Button';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js';
+import { useRouter } from 'next/router';
 
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzMwNjgwNSwiZXhwIjoxOTU4ODgyODA1fQ.deQWSwiGpViJG39o9zOP50vycMVZBFvrVvk2RRisANM";
 const  SUPABASE_URL = "https://jkwdqopgjqovtuhfyatz.supabase.co";
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export default function ChatPage(){
+  const roteamento = useRouter();
+  const usuarioLogado = roteamento.query.username;
   const [mensagem, setMensagem] = React.useState('');
   const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
 
@@ -30,7 +33,7 @@ export default function ChatPage(){
   function handleNovaMensagem(novaMensagem){
     const mensagem = {
       //id: listaDeMensagens.length + 1,
-      de: 'rubensdimasjr',
+      de: usuarioLogado,
       texto: novaMensagem
     }
 

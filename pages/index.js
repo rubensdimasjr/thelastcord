@@ -2,6 +2,11 @@ import { Box, Button, Text, TextField, Image } from '@skynexui/components';
 import React from 'react';
 import { useRouter } from 'next/router';
 import appConfig from '../config.json';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 function Title(props){
   const Tag = props.tag || 'h1';
@@ -35,16 +40,51 @@ function Title(props){
 //export default HomePage
 
 export default function PaginaInicial() {
-
   const [username, setUsername] = React.useState('rubensdimasjr');
   const roteamento = useRouter();
+
+  const [openError, setOpenError] = React.useState(false);
+
+  function handleOpenError(){
+    setOpenError(true);
+  }
+  const handleClose = () => {
+    setOpenError(false);
+  };
 
   function getUsername(user){
     return user.length == 0 ? 'rubensdimasjr' : user
   }
-  
+
   return (
     <>
+        {
+          openError &&
+          <Dialog
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+          <DialogTitle id="alert-dialog-title">
+            {"Você colocou um nome de usuário válido?"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+             Utilize seu nome de usuário do GitHub 
+             ou um usuário qualquer com mais de 2 caracteres.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button 
+              label='Fechar' 
+              onClick={handleClose}
+              colorVariant='negative'
+              autoFocus 
+            />
+          </DialogActions>
+        </Dialog>
+        }
       <Box
         styleSheet={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -73,8 +113,12 @@ export default function PaginaInicial() {
             as="form"
             onSubmit={(event) => {
               event.preventDefault();
-              // console.log('Houve uma submissão')
-              roteamento.push('/chat');
+              const usuario = event.target[0].value;
+              if(usuario === '' || usuario.length < 2){
+                handleOpenError();
+              }else{
+                roteamento.push(`/chat?username=${username}`);
+              }
             }}
             styleSheet={{
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -152,7 +196,7 @@ export default function PaginaInicial() {
               {getUsername(username)}
             </Text>
           </Box>
-          {/* Photo Area */}
+          
         </Box>
       </Box>
     </>
